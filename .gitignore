@@ -1,0 +1,13 @@
+/output/
+/.venv/
+/venv/
+__pycache__/
+*.py[cod]
+*.log
+*.tmp
+.env
+.env.*
+!.env.example
+local_config.py
+.vscode/
+.idea/
