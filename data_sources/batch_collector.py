@@ -49,7 +49,7 @@ def read_batch_symbols():
                 raise ValueError(f"证券名单存在空代码或重复代码：{symbol}")
             seen.add(symbol)
             symbols.append(symbol)
-            if len(symbols) >= BATCH_SYMBOL_LIMIT:
+            if BATCH_SYMBOL_LIMIT > 0 and len(symbols) >= BATCH_SYMBOL_LIMIT:
                 break
 
     if not symbols:
@@ -121,8 +121,10 @@ def run_batch_collection():
 
     :return: 全部成功返回0，存在失败返回2
     """
-    if BATCH_SYMBOL_LIMIT <= 0 or BATCH_MAX_ATTEMPTS <= 0:
-        raise ValueError("测试数量和尝试次数必须大于0")
+    if BATCH_SYMBOL_LIMIT < 0:
+        raise ValueError("采集数量不能为负数")
+    if BATCH_MAX_ATTEMPTS <= 0:
+        raise ValueError("尝试次数必须大于0")
     if BATCH_SLEEP_SECONDS < 0 or BATCH_RETRY_SECONDS < 0:
         raise ValueError("等待时间不能为负数")
 
@@ -174,6 +176,8 @@ def run_batch_collection():
                     index, len(symbols), symbol, error,
                 )
             state["results"].append(result)
+            if index % 20 == 0:
+                write_batch_state(state)
             if index < len(symbols):
                 time.sleep(BATCH_SLEEP_SECONDS)
     finally:
